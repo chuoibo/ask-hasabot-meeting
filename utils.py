@@ -188,6 +188,7 @@ def clean_markdown_text(text: str, preserve_images: bool = False) -> str:
     }
     for symbol, replacement in unicode_symbols.items():
         cleaned = cleaned.replace(symbol, replacement)
+    return cleaned
 
 def _normalize_ascii_key(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", str(value or ""))

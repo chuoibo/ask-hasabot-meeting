@@ -1,5 +1,6 @@
 import os
 import uuid
+import logging
 from typing import Any, AsyncIterator, Optional
 
 from dotenv import load_dotenv
@@ -12,14 +13,8 @@ from google.genai import types as genai_types
 
 from utils import clean_markdown_text
 
-from hasa_bot.domain.meeting.meeting_document_service import (
-    get_meeting_document_service,
-)
-from hasa_core.utils.logger import setup_logger
-
 load_dotenv()
-
-logger = setup_logger("logs/meeting_assignment_suggestion_agent.log")
+logger = logging.getLogger(__name__)
 
 _APP_NAME = "AssignmentSuggestionAskAgent"
 _AGENT_NAME = "assignment_suggestion_ask_agent"
@@ -311,7 +306,7 @@ class AssignmentSuggestionAskAgent:
             #     if part
             # )[:_MAX_TOOL_QUERY_CHARS]
             # try:
-            #     logger.info(
+            #     print(
             #         "Assignment popup document tool called: session_id={} query_chars={}",
             #         session_id,
             #         len(combined_query),
@@ -327,7 +322,7 @@ class AssignmentSuggestionAskAgent:
             #         ensure_ascii=False,
             #     )
             # except Exception as exc:
-            #     logger.exception(
+            #     print(
             #         "Assignment popup document tool failed: session_id={} error={}",
             #         session_id,
             #         exc,
@@ -380,7 +375,7 @@ class AssignmentSuggestionAskAgent:
             if _has_function_payload(event):
                 calls = getattr(event, "get_function_calls", lambda: [])()
                 if calls:
-                    logger.info(
+                    print(
                         "Assignment popup agent tool call session_id={} tools={}",
                         session_id,
                         [getattr(call, "name", "") for call in calls],
@@ -438,7 +433,7 @@ class AssignmentSuggestionAskAgent:
             if _has_function_payload(event):
                 calls = getattr(event, "get_function_calls", lambda: [])()
                 if calls:
-                    logger.info(
+                    print(
                         "Assignment popup agent tool call session_id={} tools={}",
                         session_id,
                         [getattr(call, "name", "") for call in calls],

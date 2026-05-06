@@ -7,12 +7,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import  StreamingResponse
 
-from hasa_bot.domain.meeting.meeting_context_service import get_meeting_context_service
-
-from hasa_core.utils.logger import setup_logger
-
-
-_logger = setup_logger("logs/hasabot_voicebot_v2.log")
+from meeting_context import get_meeting_context_service
 
 _ASSIGNMENT_SUGGESTION_BUYTIME_INITIAL_DELAY = 0.9
 _ASSIGNMENT_SUGGESTION_BUYTIME_CHAR_DELAY = 0.045
@@ -39,7 +34,7 @@ def _validate_assignment_suggestion_payload(
     if not str(session_id or "").strip():
         raise HTTPException(status_code=400, detail="session_id is required.")
     if not str(event_id or "").strip():
-        raise HTTPException(status_code=400, detail="event_id is required.")
+        raise HTTPException(status_code=400, detail="event_id is reoquired.")
     if not str(suggestion or "").strip():
         raise HTTPException(status_code=400, detail="suggestion is required.")
     if not str(selected_text or "").strip():
@@ -127,6 +122,7 @@ def _build_assignment_suggestion_buytime_text(
     followup = focus_options[(seed_value // max(1, len(openings))) % len(focus_options)]
     return f"{opening} {followup}".strip()
 
+
 def _iter_assignment_buytime_chars(text: str) -> list[str]:
     normalized = str(text or "").strip()
     if not normalized:
@@ -196,7 +192,7 @@ async def meeting_summary_assignment_suggestion_ask_post(
                         continue
                     if first_answer_chunk_ms is None:
                         first_answer_chunk_ms = int((time.monotonic() - stream_started_at) * 1000)
-                        _logger.info(
+                        print(
                             "Meeting assignment suggestion ask first answer chunk: session_id={} event_id={} first_chunk_ms={}",
                             session_id,
                             event_id,
@@ -272,7 +268,7 @@ async def meeting_summary_assignment_suggestion_ask_post(
                 raise ValueError("Empty assignment suggestion answer")
             yield format_json_sse({"type": "done", "text": final_text})
         except Exception as exc:
-            _logger.exception(
+            print(
                 "Meeting assignment suggestion ask failed: session_id={} event_id={}",
                 session_id,
                 event_id,
@@ -290,7 +286,7 @@ async def meeting_summary_assignment_suggestion_ask_post(
                     await producer_task
                 except asyncio.CancelledError:
                     pass
-            _logger.info(
+            print(
                 "Meeting assignment suggestion ask stream completed: session_id={} event_id={} buytime_decision={} buytime_chars={} first_answer_chunk_ms={} total_duration_ms={}",
                 session_id,
                 event_id,

@@ -1,0 +1,48 @@
+conda create -n ask-hasabot-py312 python=3.12
+conda activate ask-hasabot-py312
+
+# Run server
+python run_server.py
+
+pip install fastapi uvicorn python-dotenv google-adk google-genai litellm
+
+If it still breaks, install packages one by one
+python -m pip install --no-cache-dir --timeout 300 --retries 10 fastapi uvicorn python-dotenv
+python -m pip install --no-cache-dir --timeout 300 --retries 10 google-genai
+python -m pip install --no-cache-dir --timeout 300 --retries 10 google-adk
+python -m pip install --no-cache-dir --timeout 300 --retries 10 litellm
+
+# For testing
+curl -N -X POST "http://127.0.0.1:8000/api/v2/meeting-summary/assignment-suggestion/ask" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": "test-session",
+    "event_id": "test-event",
+    "language": "vi",
+    "topic": "Cập nhật tiến độ dự án robot hút bụi",
+    "report_detail": "Team đang phát triển robot hút bụi tự động cho công ty. Trong tuần này cần hoàn thiện tính năng tránh vật cản và quay về dock sạc sau khi pin yếu.",
+    "detail_points": [
+      "Robot đôi khi bị kẹt dưới ghế thấp.",
+      "Cảm biến phía trước chưa nhận diện tốt dây điện nhỏ.",
+      "Khi pin dưới 15%, robot cần tự quay về dock sạc.",
+      "QA cần chuẩn bị phòng test với bàn, ghế, dây điện và thảm."
+    ],
+    "summary": "Team cần cải thiện khả năng tránh vật cản và cơ chế tự quay về dock sạc để chuẩn bị demo robot hút bụi vào cuối tuần.",
+    "task_description": "Làm rõ yêu cầu tránh vật cản và quay về dock sạc cho robot hút bụi.",
+    "suggestion": "Nhóm điều hướng cần cập nhật thuật toán để robot phát hiện ghế thấp, dây điện và tự quay về dock khi pin yếu.",
+    "selected_text": "robot phát hiện ghế thấp, dây điện và tự quay về dock khi pin yếu",
+    "question_text": "Cách thức để giải quyết vấn đề này là gì?"
+  }'
+
+# For testing with a long JSON fixture
+curl -N -X POST "http://127.0.0.1:8000/api/v2/meeting-summary/assignment-suggestion/ask" \
+  -H "Content-Type: application/json" \
+  -d @fixtures/robot_vacuum_long_case.json
+
+# For testing multi-turn in the browser
+# 1. Run: python run_server.py
+# 2. Open: http://127.0.0.1:8000/demo
+
+# If port 8000 is already used by another backend server
+# 1. Run: python run_demo_server.py
+# 2. Open: http://127.0.0.1:8001/demo

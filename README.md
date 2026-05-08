@@ -280,3 +280,84 @@ Nếu muốn thay đổi model config như temperature, top_p, max_output_tokens
 suggestion.py
 _build_generation_config()
 ```
+
+## Test Bằng Long Simulation Fixture
+
+Ngoài cách viết JSON trực tiếp trong `curl`, repo có thêm một fixture dài để giả lập dữ liệu frontend gửi vào API:
+
+```text
+fixtures/robot_vacuum_long_case.json
+```
+
+Fixture này dùng một case robot hút bụi với meeting context dài hơn, có đủ `report_detail`, `detail_points`, `summary`, `task_description`, `suggestion`, `selected_text`, `question_text` và `conversation_history`.
+
+Trong demo này, `detail_points` được hiểu là các điểm/gợi ý đã được AI sinh ra sau cuộc họp để user chọn một điểm và hỏi tiếp. `selected_text` là đúng một điểm đang được chọn từ danh sách đó.
+
+Gửi request bằng fixture:
+
+```bash
+curl -N -X POST "http://127.0.0.1:8000/api/v2/meeting-summary/assignment-suggestion/ask" \
+  -H "Content-Type: application/json" \
+  -d @fixtures/robot_vacuum_long_case.json
+```
+
+Khi tạo thêm fixture mới, giữ đúng shape request hiện tại:
+
+```text
+selected_text = một generated point user chọn để hỏi tiếp
+question_text = câu hỏi mới nhất user hỏi về selected_text
+report_detail = bối cảnh meeting dài
+detail_points = các điểm/gợi ý AI đã sinh ra để user chọn
+summary = bản tóm tắt ngắn
+task_description = nhiệm vụ cần làm rõ
+suggestion = gợi ý giao việc đầy đủ mà user đang đọc
+conversation_history = các lượt hỏi đáp trước nếu muốn giả lập multi-turn
+```
+
+## Test Multi-Turn Bằng Demo GUI
+
+Repo có thêm một file GUI tĩnh để mô phỏng việc chọn một generated point rồi hỏi nhiều lượt về cùng `selected_text`:
+
+```text
+demo.html
+```
+
+Cách chạy:
+
+```bash
+python run_server.py
+```
+
+Sau đó mở demo qua local server:
+
+```text
+http://127.0.0.1:8000/demo
+```
+
+Không nên mở trực tiếp bằng đường dẫn `file://.../demo.html`, vì browser có thể chặn request từ file local sang API.
+
+Nếu `http://127.0.0.1:8000` đang được dùng bởi backend server khác, chạy demo ở port riêng:
+
+```bash
+python run_demo_server.py
+```
+
+Sau đó mở:
+
+```text
+http://127.0.0.1:8001/demo
+```
+
+GUI này dùng sẵn context robot hút bụi, cho phép chọn một generated point, nhập một câu hỏi mới trong ô chat, gửi request tới API, đọc response stream, rồi lưu cặp user/assistant vào `conversation_history` trong bộ nhớ trình duyệt. Khi hỏi tiếp, request mới vẫn chỉ có một `question_text` mới nhất, nhưng sẽ kèm các lượt trước trong `conversation_history`.
+
+Luồng mô phỏng:
+
+```text
+Choose one generated point
+  -> selected_text is set from that point
+Ask first question
+  -> response is displayed
+  -> GUI stores user + assistant turn
+Ask follow-up question
+  -> GUI sends same meeting context + same selected_text + new question_text + previous conversation_history
+```

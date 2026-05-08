@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ask Hasabot Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f4;
+      --panel: #ffffff;
+      --text: #1d2522;
+      --muted: #63706b;
+      --line: #d8ded8;
+      --accent: #0f7b63;
+      --accent-strong: #095c4a;
+      --warn: #9a5b00;
+      --error: #b42318;
+      --soft: #edf5f1;
+      --soft-blue: #eef4fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: #fbfcfa;
+      padding: 24px;
+      overflow: auto;
+      max-height: 100vh;
+    }
+
+    main {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-width: 0;
+      max-height: 100vh;
+    }
+
+    .topbar {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    h1, h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .topic {
+      font-weight: 700;
+      font-size: 17px;
+      margin: 0 0 12px;
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 12px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .selected {
+      background: var(--soft);
+      border-color: #b9d8ce;
+      font-weight: 650;
+    }
+
+    .points {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .points li {
+      margin: 8px 0;
+    }
+
+    .point-button {
+      width: 100%;
+      min-height: 0;
+      text-align: left;
+      display: block;
+      padding: 10px 12px;
+      font-weight: 500;
+      line-height: 1.45;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    .point-button:hover {
+      border-color: #9fcbbf;
+      background: #f6fbf8;
+    }
+
+    .point-button.active {
+      border-color: var(--accent);
+      background: var(--soft);
+      font-weight: 700;
+    }
+
+    .chat {
+      overflow: auto;
+      padding: 24px;
+    }
+
+    .message {
+      max-width: 900px;
+      margin-bottom: 16px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .message.user {
+      margin-left: auto;
+    }
+
+    .label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .bubble {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: var(--panel);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .user .bubble {
+      background: var(--soft-blue);
+      border-color: #c6d8ef;
+    }
+
+    .assistant .bubble.pending {
+      color: var(--warn);
+    }
+
+    .assistant .bubble.error {
+      color: var(--error);
+      border-color: #f0b8b2;
+      background: #fff6f5;
+    }
+
+    .composer {
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+      padding: 18px 24px;
+      display: grid;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 84px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      font: inherit;
+      color: var(--text);
+      background: #ffffff;
+    }
+
+    textarea:focus {
+      outline: 2px solid #a8d8cc;
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      min-height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      padding: 0 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    button.primary:hover {
+      background: var(--accent-strong);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .status {
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      max-width: 900px;
+      background: rgba(255,255,255,0.5);
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      main {
+        max-height: none;
+        min-height: 70vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <p class="topic" id="topic"></p>
+      <div class="subtle" id="meta"></div>
+
+      <h2>Selected Generated Point</h2>
+      <div class="field selected" id="selectedText"></div>
+
+      <h2>Current Suggestion Context</h2>
+      <div class="field" id="suggestion"></div>
+
+      <h2>Generated Points</h2>
+      <ul class="points" id="detailPoints"></ul>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h1>Ask Hasabot Demo</h1>
+          <div class="subtle">Choose one generated point, ask one latest question, then continue with follow-ups.</div>
+        </div>
+        <div class="subtle" id="historyCount">0 history turns</div>
+      </div>
+
+      <section class="chat" id="chat">
+        <div class="empty" id="emptyState">
+          Choose a generated point and type a question about it. Follow-ups will include previous user and assistant turns.
+        </div>
+      </section>
+
+      <form class="composer" id="askForm">
+        <textarea id="questionInput" placeholder="Type a question about the selected generated point"></textarea>
+        <div class="actions">
+          <div class="status" id="status">Backend: http://127.0.0.1:8000</div>
+          <div class="button-row">
+            <button type="button" id="sampleOne">Sample 1</button>
+            <button type="button" id="sampleTwo">Sample 2</button>
+            <button type="button" id="resetButton">Reset chat</button>
+            <button class="primary" id="askButton" type="submit">Ask</button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    const API_PATH = "/api/v2/meeting-summary/assignment-suggestion/ask";
+    const API_URL = window.location.protocol.startsWith("http")
+      ? `${window.location.origin}${API_PATH}`
+      : `http://127.0.0.1:8000${API_PATH}`;
+
+    const fixturePayload = {
+      "session_id": "sim-robot-vacuum-2026-05-07",
+      "event_id": "event-navigation-docking-risk-review",
+      "source_hash": "robot-vacuum-long-case-v1",
+      "language": "vi",
+      "topic": "Review rủi ro điều hướng và quay về dock của robot hút bụi trước demo cuối tuần",
+      "report_detail": "Cuộc họp tập trung vào việc chuẩn bị demo robot hút bụi tự động cho khách hàng nội bộ vào thứ Sáu. Nhóm sản phẩm muốn demo robot có thể dọn một phòng test mô phỏng căn hộ nhỏ, bao gồm bàn thấp, ghế ăn, dây điện sạc laptop, thảm mỏng và dock sạc đặt sát tường. Trong bản test gần nhất, robot hoàn thành phần hút bụi cơ bản nhưng còn ba vấn đề chính. Thứ nhất, robot đôi khi chui vào dưới ghế thấp rồi mất nhiều thời gian xoay trở, có lúc phải nhấc robot ra bằng tay. Thứ hai, cảm biến phía trước nhận diện tốt chân bàn lớn nhưng chưa ổn định với dây điện nhỏ nằm sát sàn, làm robot có nguy cơ kéo dây hoặc mắc kẹt. Thứ ba, khi pin xuống dưới 15%, robot có logic quay về dock nhưng đường quay về chưa ổn định nếu trong phòng có vật cản mới được đặt thêm sau khi robot đã lập bản đồ. Product yêu cầu demo không cần xử lý mọi tình huống nâng cao, nhưng phải tránh các lỗi gây mất niềm tin như kẹt dưới ghế quá lâu, kéo dây điện, hoặc hết pin giữa phòng. Engineering thống nhất không thay thuật toán toàn bộ trước demo mà ưu tiên guardrail thực tế: giới hạn vùng gầm thấp có rủi ro, cải thiện rule nhận diện dây điện nhỏ, và thêm fallback quay về dock khi đường đi cũ bị chặn. QA cần chuẩn bị phòng test cố định, ghi video lại từng lần robot gặp lỗi, và xác nhận các tiêu chí pass/fail trước chiều thứ Năm để nhóm kịp sửa trước buổi demo.",
+      "detail_points": [
+        "Robot cần kích hoạt fallback quay về dock khi pin dưới 15% nhưng đường quay về cũ bị chặn.",
+        "Robot cần giảm khả năng đi sâu vào vùng gầm ghế thấp có rủi ro bị kẹt trước buổi demo.",
+        "Robot cần nhận diện dây điện nhỏ nằm sát sàn như vật cản cần tránh để không kéo dây trong phòng test.",
+        "QA cần tạo phòng test cố định với bàn thấp, ghế ăn, dây điện, thảm mỏng và dock sát tường.",
+        "QA cần ghi video, log thời điểm và điều kiện phòng mỗi khi robot bị kẹt, kéo dây hoặc không về dock được.",
+        "Navigation và QA cần thống nhất tiêu chí demo tối thiểu trước chiều thứ Năm.",
+        "Product nên ưu tiên các lỗi gây mất niềm tin trong demo thay vì yêu cầu tối ưu toàn bộ thuật toán.",
+        "Engineering nên thêm guardrail ngắn hạn thay vì viết lại toàn bộ navigation stack trước demo."
+      ],
+      "summary": "Team cần chuẩn bị demo robot hút bụi vào thứ Sáu bằng cách giảm rủi ro robot kẹt dưới ghế thấp, kéo dây điện nhỏ hoặc hết pin giữa phòng. Giải pháp trước mắt là thêm guardrail cho khu vực gầm thấp, cải thiện nhận diện dây điện nhỏ và bổ sung fallback quay về dock khi đường về bị chặn. QA cần chuẩn bị phòng test cố định, quay video lỗi và xác nhận tiêu chí pass/fail trước chiều thứ Năm.",
+      "task_description": "Làm rõ yêu cầu ngắn hạn cho nhóm Navigation và QA để robot hút bụi xử lý an toàn hơn với ghế thấp, dây điện nhỏ và tình huống quay về dock khi pin yếu trước buổi demo.",
+      "suggestion": "Nhóm Navigation nên ưu tiên một gói guardrail trước demo thay vì viết lại toàn bộ navigation stack. Cụ thể, robot cần phát hiện vùng gầm ghế thấp có rủi ro, giảm khả năng đi sâu vào khu vực dễ kẹt, nhận diện dây điện nhỏ nằm sát sàn như vật cản cần tránh, và kích hoạt fallback quay về dock khi pin dưới 15% nhưng đường quay về cũ bị chặn. QA nên tạo một phòng test cố định với bàn thấp, ghế ăn, dây điện, thảm mỏng và dock sát tường; mỗi lần robot bị kẹt, kéo dây hoặc không về dock được cần có video, log thời điểm, điều kiện phòng và kết quả pass/fail. Trước chiều thứ Năm, Navigation và QA cần thống nhất tiêu chí demo tối thiểu: robot không được kẹt dưới ghế quá 30 giây, không được kéo dây điện quá 10 cm và phải bắt đầu quay về dock trong vòng 5 giây sau khi pin xuống dưới 15%.",
+      "selected_text": "Robot cần kích hoạt fallback quay về dock khi pin dưới 15% nhưng đường quay về cũ bị chặn.",
+      "question_text": "Ý này nên hiểu là gì và nhóm nên cải thiện theo hướng nào để chuẩn bị cho demo?",
+      "conversation_history": [],
+      "assigner": "Product Lead",
+      "assignee": "Hasaki Robotics & AI Team",
+      "start_date": "2026-05-07",
+      "deadline": "2026-05-08"
+    };
+
+    const sampleQuestions = [
+      "Ý này nên hiểu là gì và nhóm nên cải thiện theo hướng nào để chuẩn bị cho demo?",
+      "Có thể thêm guardrail nào để giảm rủi ro robot kẹt dưới ghế thấp mà không cần viết lại toàn bộ navigation stack?"
+    ];
+
+    let conversationHistory = [];
+    let currentSelectedText = fixturePayload.selected_text;
+    let isAsking = false;
+
+    const topicEl = document.getElementById("topic");
+    const metaEl = document.getElementById("meta");
+    const selectedTextEl = document.getElementById("selectedText");
+    const suggestionEl = document.getElementById("suggestion");
+    const detailPointsEl = document.getElementById("detailPoints");
+    const chatEl = document.getElementById("chat");
+    const questionInputEl = document.getElementById("questionInput");
+    const askFormEl = document.getElementById("askForm");
+    const askButtonEl = document.getElementById("askButton");
+    const resetButtonEl = document.getElementById("resetButton");
+    const sampleOneEl = document.getElementById("sampleOne");
+    const sampleTwoEl = document.getElementById("sampleTwo");
+    const statusEl = document.getElementById("status");
+    const historyCountEl = document.getElementById("historyCount");
+
+    function initializeContext() {
+      topicEl.textContent = fixturePayload.topic;
+      metaEl.textContent = `${fixturePayload.assignee} · ${fixturePayload.deadline}`;
+      selectedTextEl.textContent = currentSelectedText;
+      suggestionEl.textContent = fixturePayload.suggestion;
+      detailPointsEl.innerHTML = "";
+      fixturePayload.detail_points.forEach((point) => {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `point-button${point === currentSelectedText ? " active" : ""}`;
+        button.textContent = point;
+        button.addEventListener("click", () => selectGeneratedPoint(point));
+        item.appendChild(button);
+        detailPointsEl.appendChild(item);
+      });
+      questionInputEl.value = fixturePayload.question_text;
+      updateHistoryCount();
+    }
+
+    function updateHistoryCount() {
+      historyCountEl.textContent = `${conversationHistory.length} history turns`;
+    }
+
+    function setBusy(nextBusy) {
+      isAsking = nextBusy;
+      askButtonEl.disabled = nextBusy;
+      resetButtonEl.disabled = nextBusy;
+      sampleOneEl.disabled = nextBusy;
+      sampleTwoEl.disabled = nextBusy;
+      questionInputEl.disabled = nextBusy;
+      detailPointsEl.querySelectorAll("button").forEach((button) => {
+        button.disabled = nextBusy;
+      });
+    }
+
+    function selectGeneratedPoint(point) {
+      if (isAsking || point === currentSelectedText) {
+        return;
+      }
+      currentSelectedText = point;
+      conversationHistory = [];
+      chatEl.innerHTML = '<div class="empty" id="emptyState">Ask a question about the selected generated point. Follow-ups will include previous user and assistant turns.</div>';
+      selectedTextEl.textContent = currentSelectedText;
+      questionInputEl.value = fixturePayload.question_text;
+      statusEl.textContent = "Selected point changed. Chat history was reset for this point.";
+      updateHistoryCount();
+      initializeContext();
+      questionInputEl.focus();
+    }
+
+    function clearEmptyState() {
+      const emptyState = chatEl.querySelector(".empty");
+      if (emptyState) {
+        emptyState.remove();
+      }
+    }
+
+    function addMessage(role, text, options = {}) {
+      clearEmptyState();
+      const wrapper = document.createElement("article");
+      wrapper.className = `message ${role}`;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = role === "user" ? "You" : "Hasabot";
+
+      const bubble = document.createElement("div");
+      bubble.className = `bubble${options.pending ? " pending" : ""}${options.error ? " error" : ""}`;
+      bubble.textContent = text;
+
+      wrapper.append(label, bubble);
+      chatEl.appendChild(wrapper);
+      chatEl.scrollTop = chatEl.scrollHeight;
+      return bubble;
+    }
+
+    function appendToBubble(bubble, text) {
+      bubble.textContent += text;
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function buildRequestBody(questionText) {
+      return {
+        ...fixturePayload,
+        selected_text: currentSelectedText,
+        question_text: questionText,
+        conversation_history: conversationHistory.map((item) => ({ ...item }))
+      };
+    }
+
+    function handleSsePayload(payload, assistantBubble, state) {
+      if (payload.type === "buytime") {
+        if (!state.answerStarted) {
+          if (!state.buytimeStarted) {
+            assistantBubble.textContent = "";
+            state.buytimeStarted = true;
+          }
+          appendToBubble(assistantBubble, payload.delta || "");
+        }
+        return;
+      }
+
+      if (payload.type === "status" && payload.phase === "answer" && payload.state === "started") {
+        state.answerStarted = true;
+        assistantBubble.classList.remove("pending");
+        assistantBubble.textContent = "";
+        return;
+      }
+
+      if (payload.type === "delta") {
+        if (!state.answerStarted) {
+          state.answerStarted = true;
+          assistantBubble.classList.remove("pending");
+          assistantBubble.textContent = "";
+        }
+        const chunk = payload.delta || "";
+        state.answerText += chunk;
+        appendToBubble(assistantBubble, chunk);
+        return;
+      }
+
+      if (payload.type === "done") {
+        state.doneText = payload.text || state.answerText;
+        if (state.doneText && state.doneText !== assistantBubble.textContent) {
+          assistantBubble.textContent = state.doneText;
+        }
+        return;
+      }
+
+      if (payload.type === "error") {
+        throw new Error(payload.message || "Backend returned an error.");
+      }
+    }
+
+    async function readSseResponse(response, assistantBubble) {
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `Request failed with status ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      const state = {
+        answerStarted: false,
+        buytimeStarted: false,
+        answerText: "",
+        doneText: ""
+      };
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          break;
+        }
+        buffer += decoder.decode(value, { stream: true });
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+
+        for (const eventText of events) {
+          const dataLines = eventText
+            .split("\n")
+            .filter((line) => line.startsWith("data:"))
+            .map((line) => line.slice(5).trim());
+
+          for (const dataLine of dataLines) {
+            if (!dataLine) {
+              continue;
+            }
+            const payload = JSON.parse(dataLine);
+            handleSsePayload(payload, assistantBubble, state);
+          }
+        }
+      }
+
+      return state.doneText || state.answerText || assistantBubble.textContent;
+    }
+
+    async function askQuestion(questionText) {
+      setBusy(true);
+      statusEl.textContent = "Sending request...";
+      addMessage("user", questionText);
+      const assistantBubble = addMessage("assistant", "Waiting for Hasabot...", { pending: true });
+
+      try {
+        const requestBody = buildRequestBody(questionText);
+        console.log("Ask Hasabot request body", requestBody);
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const finalAnswer = (await readSseResponse(response, assistantBubble)).trim();
+        conversationHistory.push(
+          { role: "user", content: questionText },
+          { role: "assistant", content: finalAnswer }
+        );
+        updateHistoryCount();
+        statusEl.textContent = "Done. Follow-up questions will include this turn.";
+      } catch (error) {
+        assistantBubble.classList.remove("pending");
+        assistantBubble.classList.add("error");
+        assistantBubble.textContent = error.message || "Request failed.";
+        statusEl.textContent = "Request failed.";
+      } finally {
+        setBusy(false);
+        questionInputEl.focus();
+      }
+    }
+
+    askFormEl.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (isAsking) {
+        return;
+      }
+      const questionText = questionInputEl.value.trim();
+      if (!questionText) {
+        statusEl.textContent = "Type a question first.";
+        questionInputEl.focus();
+        return;
+      }
+      askQuestion(questionText);
+    });
+
+    resetButtonEl.addEventListener("click", () => {
+      conversationHistory = [];
+      chatEl.innerHTML = '<div class="empty" id="emptyState">Ask a question about the selected generated point. Follow-ups will include previous user and assistant turns.</div>';
+      updateHistoryCount();
+      statusEl.textContent = "Chat reset. Meeting context is unchanged.";
+      questionInputEl.value = fixturePayload.question_text;
+      questionInputEl.focus();
+    });
+
+    sampleOneEl.addEventListener("click", () => {
+      questionInputEl.value = sampleQuestions[0];
+      questionInputEl.focus();
+    });
+
+    sampleTwoEl.addEventListener("click", () => {
+      questionInputEl.value = sampleQuestions[1];
+      questionInputEl.focus();
+    });
+
+    initializeContext();
+  </script>
+</body>
+</html>

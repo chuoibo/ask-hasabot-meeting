@@ -1,0 +1,28 @@
+{
+  "session_id": "sim-robot-vacuum-2026-05-07",
+  "event_id": "event-navigation-docking-risk-review",
+  "source_hash": "robot-vacuum-long-case-v1",
+  "language": "vi",
+  "topic": "Review rủi ro điều hướng và quay về dock của robot hút bụi trước demo cuối tuần",
+  "report_detail": "Cuộc họp tập trung vào việc chuẩn bị demo robot hút bụi tự động cho khách hàng nội bộ vào thứ Sáu. Nhóm sản phẩm muốn demo robot có thể dọn một phòng test mô phỏng căn hộ nhỏ, bao gồm bàn thấp, ghế ăn, dây điện sạc laptop, thảm mỏng và dock sạc đặt sát tường. Trong bản test gần nhất, robot hoàn thành phần hút bụi cơ bản nhưng còn ba vấn đề chính. Thứ nhất, robot đôi khi chui vào dưới ghế thấp rồi mất nhiều thời gian xoay trở, có lúc phải nhấc robot ra bằng tay. Thứ hai, cảm biến phía trước nhận diện tốt chân bàn lớn nhưng chưa ổn định với dây điện nhỏ nằm sát sàn, làm robot có nguy cơ kéo dây hoặc mắc kẹt. Thứ ba, khi pin xuống dưới 15%, robot có logic quay về dock nhưng đường quay về chưa ổn định nếu trong phòng có vật cản mới được đặt thêm sau khi robot đã lập bản đồ. Product yêu cầu demo không cần xử lý mọi tình huống nâng cao, nhưng phải tránh các lỗi gây mất niềm tin như kẹt dưới ghế quá lâu, kéo dây điện, hoặc hết pin giữa phòng. Engineering thống nhất không thay thuật toán toàn bộ trước demo mà ưu tiên guardrail thực tế: giới hạn vùng gầm thấp có rủi ro, cải thiện rule nhận diện dây điện nhỏ, và thêm fallback quay về dock khi đường đi cũ bị chặn. QA cần chuẩn bị phòng test cố định, ghi video lại từng lần robot gặp lỗi, và xác nhận các tiêu chí pass/fail trước chiều thứ Năm để nhóm kịp sửa trước buổi demo.",
+  "detail_points": [
+    "Robot cần kích hoạt fallback quay về dock khi pin dưới 15% nhưng đường quay về cũ bị chặn.",
+    "Robot cần giảm khả năng đi sâu vào vùng gầm ghế thấp có rủi ro bị kẹt trước buổi demo.",
+    "Robot cần nhận diện dây điện nhỏ nằm sát sàn như vật cản cần tránh để không kéo dây trong phòng test.",
+    "QA cần tạo phòng test cố định với bàn thấp, ghế ăn, dây điện, thảm mỏng và dock sát tường.",
+    "QA cần ghi video, log thời điểm và điều kiện phòng mỗi khi robot bị kẹt, kéo dây hoặc không về dock được.",
+    "Navigation và QA cần thống nhất tiêu chí demo tối thiểu trước chiều thứ Năm.",
+    "Product nên ưu tiên các lỗi gây mất niềm tin trong demo thay vì yêu cầu tối ưu toàn bộ thuật toán.",
+    "Engineering nên thêm guardrail ngắn hạn thay vì viết lại toàn bộ navigation stack trước demo."
+  ],
+  "summary": "Team cần chuẩn bị demo robot hút bụi vào thứ Sáu bằng cách giảm rủi ro robot kẹt dưới ghế thấp, kéo dây điện nhỏ hoặc hết pin giữa phòng. Giải pháp trước mắt là thêm guardrail cho khu vực gầm thấp, cải thiện nhận diện dây điện nhỏ và bổ sung fallback quay về dock khi đường về bị chặn. QA cần chuẩn bị phòng test cố định, quay video lỗi và xác nhận tiêu chí pass/fail trước chiều thứ Năm.",
+  "task_description": "Làm rõ yêu cầu ngắn hạn cho nhóm Navigation và QA để robot hút bụi xử lý an toàn hơn với ghế thấp, dây điện nhỏ và tình huống quay về dock khi pin yếu trước buổi demo.",
+  "suggestion": "Nhóm Navigation nên ưu tiên một gói guardrail trước demo thay vì viết lại toàn bộ navigation stack. Cụ thể, robot cần phát hiện vùng gầm ghế thấp có rủi ro, giảm khả năng đi sâu vào khu vực dễ kẹt, nhận diện dây điện nhỏ nằm sát sàn như vật cản cần tránh, và kích hoạt fallback quay về dock khi pin dưới 15% nhưng đường quay về cũ bị chặn. QA nên tạo một phòng test cố định với bàn thấp, ghế ăn, dây điện, thảm mỏng và dock sát tường; mỗi lần robot bị kẹt, kéo dây hoặc không về dock được cần có video, log thời điểm, điều kiện phòng và kết quả pass/fail. Trước chiều thứ Năm, Navigation và QA cần thống nhất tiêu chí demo tối thiểu: robot không được kẹt dưới ghế quá 30 giây, không được kéo dây điện quá 10 cm và phải bắt đầu quay về dock trong vòng 5 giây sau khi pin xuống dưới 15%.",
+  "selected_text": "Robot cần kích hoạt fallback quay về dock khi pin dưới 15% nhưng đường quay về cũ bị chặn.",
+  "question_text": "Ý này nên hiểu là gì và nhóm nên cải thiện theo hướng nào để chuẩn bị cho demo?",
+  "conversation_history": [],
+  "assigner": "Product Lead",
+  "assignee": "Hasaki Robotics & AI Team",
+  "start_date": "2026-05-07",
+  "deadline": "2026-05-08"
+}
